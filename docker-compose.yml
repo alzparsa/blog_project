@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    container_name: fastapi-container
+    env_file:
+      - .env
+    volumes:
+      - ./app.db:/code/app.db
+    restart: unless-stopped
+    # ⚠️ Notice: no "ports" section anymore — nginx will handle external traffic
+
+  nginx:
+    build: ./nginx
+    container_name: nginx-container
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
