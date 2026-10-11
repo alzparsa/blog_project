@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
-from app.auth import models, schemas
+from app.acc import models
+from app.auth import models as auth_models  # noqa: F401  (registers Token tables with Base)
 from datetime import datetime, timedelta, timezone
 from jose import jwt,JWTError
 from os import getenv
@@ -59,122 +60,6 @@ def get_current_account(
         raise credentials_exception
 
     
-def create_account(
-    payload: schemas.CreateAccountRequest,
-    db: Session,
-):
-    # 1. Check if email already exists
-    existing_account = (
-        db.query(models.Account)
-        .filter(models.Account.email == payload.email)
-        .first()
-    )
-
-    if existing_account:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
-        )
-
-    # 2. Hash the password
-    hashed_password = pwd_context.hash(payload.password)
-
-    # 3. Create the new account row
-    new_account = models.Account(
-        email=payload.email,
-        password=hashed_password,
-        name=payload.name,
-        profilePhoto=payload.profilePhoto,
-        language=payload.language,
-        isActive=False,
-    )
-
-    # 4. Save to database
-    db.add(new_account)
-    db.commit()
-    db.refresh(new_account)
-
-    return new_account
-
-
-def get_account(account_id: int, db: Session):
-    account = (
-        db.query(models.Account)
-        .filter(models.Account.id == account_id)
-        .first()
-    )
-
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
-
-    return account
-
-
-
-def update_account(
-    account_id: int,
-    payload: schemas.UpdateAccountRequest,
-    db: Session,
-    authenticated_account_id: int
-):
-    if account_id != authenticated_account_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You cannot update another account",
-        )
-    account = (
-        db.query(models.Account)
-        .filter(models.Account.id == account_id)
-        .first()
-    )
-
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
-
-    if payload.email is not None:
-        account.email = payload.email
-
-    if payload.password is not None:
-        account.password = pwd_context.hash(payload.password)
-
-    if payload.name is not None:
-        account.name = payload.name
-
-    if payload.profilePhoto is not None:
-        account.profilePhoto = payload.profilePhoto
-
-    if payload.language is not None:
-        account.language = payload.language
-
-    db.commit()
-    db.refresh(account)
-
-    return account
-
-
-
-def delete_account(account_id: int, db: Session):
-    account = (
-        db.query(models.Account)
-        .filter(models.Account.id == account_id)
-        .first()
-    )
-
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
-
-    db.delete(account)
-    db.commit()
-
 def create_access_token(
     data: dict,
     expires_delta: timedelta,

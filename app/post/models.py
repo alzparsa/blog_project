@@ -2,7 +2,7 @@ from sqlalchemy import (
     Column, Integer, String, Text, DateTime, ForeignKey, UniqueConstraint, Index
 )
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app.database import Base
 
@@ -24,7 +24,12 @@ class Post(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updatedAt = Column(DateTime(timezone=True), onupdate=func.now())
 
-    account = relationship("Account", backref="posts")
+    # passive_deletes: deleting an Account lets the DB cascade-delete its posts,
+    # instead of SQLAlchemy trying to set posts.accountId = NULL (which is NOT NULL).
+    account = relationship(
+        "Account",
+        backref=backref("posts", cascade="all, delete-orphan", passive_deletes=True),
+    )
     postLikes = relationship(
         "PostLike",
         back_populates="post",
