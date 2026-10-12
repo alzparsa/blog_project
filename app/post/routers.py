@@ -2,10 +2,9 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.auth.services import get_current_account  # adjust if it lives in dependencies.py
+from app.auth.services import get_current_account
 from app.post import services
 from app.post.schemas import (
-    LikeRequest,
     LikeResponse,
     PostCreateRequest,
     PostResponse,
@@ -19,36 +18,33 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 def createPost(
     payload: PostCreateRequest,
     db: Session = Depends(get_db),
-    currentAccount=Depends(get_current_account),
+    current_account: dict = Depends(get_current_account),
 ):
-    accountId = services.resolveAccountId(currentAccount)
-    post = services.createPost(db, payload, accountId)
+    post = services.createPost(db, payload, current_account["account_id"])
     return PostResponse(
         postId=post.postId, responseCode=201, responseMessage="Post created successfully."
     )
 
 
-@router.patch("", response_model=PostResponse)
-def patchPost(
-    payload: PostUpdateRequest,
+@router.patch("/{postId}", response_model=PostResponse)
+def likwPost(
+    postId: int,
     db: Session = Depends(get_db),
-    currentAccount=Depends(get_current_account),
+    current_account: dict = Depends(get_current_account),
 ):
-    accountId = services.resolveAccountId(currentAccount)
-    post = services.updatePost(db, payload, accountId)
+    post = services.updatePost(postId, db, current_account["account_id"])
     return PostResponse(
         postId=post.postId, responseCode=200, responseMessage="Post updated successfully."
     )
 
 
-@router.put("/like", response_model=LikeResponse)
+@router.post("/{postId}/like", response_model=LikeResponse)
 def putLike(
-    payload: LikeRequest,
+    postId: int,
     db: Session = Depends(get_db),
-    currentAccount=Depends(get_current_account),
+    current_account: dict = Depends(get_current_account),
 ):
-    accountId = services.resolveAccountId(currentAccount)
-    post, liked = services.toggleLike(db, payload.postId, accountId)
+    post, liked = services.toggleLike(postId, db, current_account["account_id"])
     return LikeResponse(
         postId=post.postId,
         likes=post.likes,
@@ -56,11 +52,3 @@ def putLike(
         responseCode=200,
         responseMessage="Post liked." if liked else "Like removed.",
     )
-
-@router.get("/debug/whoami")
-def whoami(current_account = Depends(get_current_account)):
-    return {
-        "type": str(type(current_account)),
-        "repr": repr(current_account)[:500],
-        "attrs": [a for a in dir(current_account) if not a.startswith("_")][:60],
-    }

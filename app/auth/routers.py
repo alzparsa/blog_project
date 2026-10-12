@@ -22,7 +22,8 @@ def access_token(payload: CreateAccessTokenRequest, db: Session = Depends(get_db
 
 
 @router.post("/refresh-token", response_model=CreateRefreshTokenResponse)
-def refresh_token(payload: CreateRefreshTokenRequest):
+def refresh_token(payload: CreateRefreshTokenRequest, db: Session = Depends(get_db)):
     return refresh_access_token_service(
+        db=db,
         refresh_token=payload.refreshToken,
     )

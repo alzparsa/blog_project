@@ -1,27 +1,9 @@
-from typing import Any
-
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.post.models import Post, PostLike
 from app.post.schemas import PostCreateRequest, PostUpdateRequest
-
-
-def resolveAccountId(currentAccount: Any) -> int:
-    """Works whether get_current_account returns an ORM Account, a dict, or a JWT payload."""
-    if isinstance(currentAccount, dict):
-        for key in ("id", "accountId", "accId", "sub"):
-            if currentAccount.get(key) is not None:
-                return int(currentAccount[key])
-    for attr in ("id", "accountId", "accId"):
-        value = getattr(currentAccount, attr, None)
-        if value is not None:
-            return int(value)
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not resolve account from token.",
-    )
 
 
 def assertIdentity(tokenAccountId: int, claimedAccId: int) -> None:
@@ -41,13 +23,12 @@ def getPostOr404(db: Session, postId: int) -> Post:
 
 
 def createPost(db: Session, payload: PostCreateRequest, tokenAccountId: int) -> Post:
-    assertIdentity(tokenAccountId, payload.accId)
 
     post = Post(
         header=payload.header.strip(),
         body=payload.body,
         attachment=payload.attachment,
-        accountId=payload.accId,
+        accountId=tokenAccountId,
         likes=0,
     )
     db.add(post)
@@ -62,9 +43,8 @@ def createPost(db: Session, payload: PostCreateRequest, tokenAccountId: int) -> 
     return post
 
 
-def updatePost(db: Session, payload: PostUpdateRequest, tokenAccountId: int) -> Post:
-    assertIdentity(tokenAccountId, payload.accId)
-    post = getPostOr404(db, payload.postId)
+def updatePost(postId: int, db: Session, payload: PostUpdateRequest, tokenAccountId: int) -> Post:
+    post = getPostOr404(db, postId)
 
     if int(post.accountId) != int(tokenAccountId):
         raise HTTPException(
@@ -88,7 +68,7 @@ def updatePost(db: Session, payload: PostUpdateRequest, tokenAccountId: int) -> 
     return post
 
 
-def toggleLike(db: Session, postId: int, tokenAccountId: int) -> tuple[Post, bool]:
+def toggleLike(postId: int, db: Session, tokenAccountId: int) -> tuple[Post, bool]:
     """Returns (post, liked). Idempotent per account: like → unlike → like."""
     post = getPostOr404(db, postId)
 

@@ -8,7 +8,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class PostCreateRequest(BaseModel):
     """Token comes from the Authorization header, never the body."""
-    accId: int = Field(..., description="Account ID of the author")
     header: str = Field(..., min_length=1, max_length=255)
     body: str = Field(..., min_length=1)
     attachment: Optional[str] = Field(None, max_length=512)
@@ -16,15 +15,11 @@ class PostCreateRequest(BaseModel):
 
 class PostUpdateRequest(BaseModel):
     """PATCH — only send the fields that change."""
-    postId: int
-    accId: int
     header: Optional[str] = Field(None, min_length=1, max_length=255)
     body: Optional[str] = Field(None, min_length=1)
     attachment: Optional[str] = Field(None, max_length=512)
 
 
-class LikeRequest(BaseModel):
-    postId: int
 
 
 # ---------- Responses ----------

@@ -32,7 +32,6 @@ class Post(Base):
     )
     postLikes = relationship(
         "PostLike",
-        back_populates="post",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -53,7 +52,5 @@ class PostLike(Base):
         Integer, ForeignKey("accounts.id", ondelete="CASCADE"), nullable=False, index=True
     )
     createdAt = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    post = relationship("Post", back_populates="postLikes")
 
     __table_args__ = (UniqueConstraint("postId", "accountId", name="uq_post_like_once"),)

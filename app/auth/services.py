@@ -169,6 +169,7 @@ def create_access_token_service(
     }
 
 def refresh_access_token_service(
+    db: Session,
     refresh_token: str,
 ) -> dict:
     try:
@@ -199,9 +200,25 @@ def refresh_access_token_service(
             detail="Invalid or expired refresh token",
         )
 
+    try:
+        account = (
+            db.query(models.Account)
+            .filter(models.Account.id == int(account_id))
+            .first()
+        )
+    except ValueError:
+        account = None
+
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
+
     new_access_token = create_access_token(
         data={
-            "sub": str(account_id),
+            "sub": str(account.id),
+            "email": account.email,
             "token_type": "access",
         },
         expires_delta=timedelta(
