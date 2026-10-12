@@ -24,7 +24,7 @@ docker-compose.yml
 
 ## Configuration
 
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` in the project root and set your own values:
 
 ```
 SECRET_KEY=change-me
