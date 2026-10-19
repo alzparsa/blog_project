@@ -1,21 +1,21 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.acc.schemas import (
+from blog_project.backend.app.database import get_db
+from blog_project.backend.app.acc.schemas import (
     CreateAccountRequest,
     CreateAccountResponse,
     UpdateAccountRequest,
     UpdateAccountResponse,
     UploadProfilePhotoResponse,
 )
-from app.acc.services import (
+from blog_project.backend.app.acc.services import (
     create_account as create_account_service,
     get_account as get_account_service,
     update_account as update_account_service,
     delete_account as delete_account_service,
     upload_profile_photo as upload_profile_photo_service,
 )
-from app.auth.services import get_current_account
+from blog_project.backend.app.auth.services import get_current_account
 
 
 # Prefix kept as "/auth" so existing endpoint URLs don't change.

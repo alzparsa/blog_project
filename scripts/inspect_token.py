@@ -1,6 +1,6 @@
 """Decode a JWT and show its claims (debugging only - does NOT verify the signature).
 
-Run from blog_project:  python -m scripts.inspect_token
+Run from the project root:  python -m scripts.inspect_token
 """
 import json
 import time

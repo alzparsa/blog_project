@@ -8,10 +8,13 @@ Run from the project root:  python -m scripts.init_db
 - Creates every missing table from the current models.
 """
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 
 from sqlalchemy import inspect, text
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
 
 from app.database import Base, engine
 import app.acc.models  # noqa: F401  registers the models on Base

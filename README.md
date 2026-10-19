@@ -11,20 +11,25 @@ A small blog API built with [FastAPI](https://fastapi.tiangolo.com/) and SQLAlch
 ## Project layout
 
 ```
-main.py            # FastAPI app, router registration
-app/
-  config.py        # loads SECRET_KEY / ALGORITHM from .env
-  database.py      # SQLite engine and session dependency
-  auth/            # accounts, login and token logic
-  post/            # post models, schemas, routes and services
+backend/
+  main.py          # FastAPI app, router registration
+  .env             # SECRET_KEY / ALGORITHM
+  Dockerfile
+  requirements.txt
+  app/
+    config.py      # loads SECRET_KEY / ALGORITHM from .env
+    database.py    # SQLite engine and session dependency
+    acc/           # account models, schemas, routes, services
+    auth/          # login and token logic
+    post/          # post models, schemas, routes and services
 nginx/             # nginx reverse proxy used by docker-compose
-Dockerfile
+scripts/           # init_db, inspect_token, smoke_test_acc
 docker-compose.yml
 ```
 
 ## Configuration
 
-Create a `.env` file in the project root:
+Create a `.env` file in `backend/`:
 
 ```
 SECRET_KEY=change-me
@@ -50,4 +55,4 @@ Then open http://127.0.0.1:8000/docs.
 docker compose up --build
 ```
 
-nginx listens on port 80 and proxies to the API container, so the docs are at http://localhost/docs. The SQLite database is stored in `app.db`, mounted from the project root.
+nginx listens on port 80 and proxies to the API container, so the docs are at http://localhost/docs. The SQLite database (`app.db`) and `uploads/` are mounted from the project root. Running locally from `backend/` uses `backend/app.db` unless you set `DATABASE_URL`.
