@@ -66,7 +66,7 @@ export default function AboutPage() {
             </section>
             <section>
                 <p><strong>Ready to start?</strong> Create your account and follow your first category.</p>
-                <NavLink href="/login">Sign up</NavLink>
+                <NavLink href="/signup">Sign up</NavLink>
                 <NavLink href="/categories">Browse categories</NavLink>
             </section>
         </main>

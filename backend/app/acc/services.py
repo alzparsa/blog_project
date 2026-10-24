@@ -3,9 +3,9 @@ from pathlib import Path
 from uuid import uuid4
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, UploadFile, status
-from blog_project.backend.app.acc import schemas
-from blog_project.backend.app.auth.services import pwd_context
-from blog_project.backend.app.acc import models
+from app.acc import schemas
+from app.auth.services import pwd_context
+from app.acc import models
 
 
 def create_account(

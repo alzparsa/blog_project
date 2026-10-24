@@ -13,13 +13,14 @@ A blog application with a [FastAPI](https://fastapi.tiangolo.com/) + SQLAlchemy 
 
 ### Frontend (`frontend/`)
 
-Next.js (App Router) with React. Currently a page scaffold with shared layout components; the pages are placeholders and are not yet connected to the API.
+Next.js (App Router) with React, with shared layout components. The signup page is connected to the API: it creates an account through the create account endpoint (`POST /account`, URL taken from `NEXT_PUBLIC_API_URL`). The other pages are still placeholders.
 
 | Route         | Page                 |
 | ------------- | -------------------- |
 | `/`           | Home                 |
 | `/feed`       | My Feed              |
 | `/login`      | Login                |
+| `/signup`     | Sign up              |
 | `/categories` | Categories           |
 | `/teams`      | Teams                |
 | `/about`      | About                |
