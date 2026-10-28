@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
+import { useState , useEffect} from "react";
+import api from "@/lib/api";
 
 export default function SignupPage() {
     const title = "Create your account";
@@ -12,22 +12,25 @@ export default function SignupPage() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        // Handle form submission logic here    
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/account`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                email,
-                password,
-                // confirmPassword,
-            }),
+        try {
+            const res = await api.post("/account", {
+            name,
+            email,
+            password,
+            // confirmPassword,
         });
-        const data = await res.json();
-        console.log(data);
+        console.log(res.data);
+        } catch (err) {
+            console.log(err.response?.data);
+        }
     }
+
+    useEffect(() => {
+        if(name === "parsa") {
+           setName(name + "alizadeh")
+        }
+        // Any side effects needed on component mount
+    }, [name]);
 
     return (
         <main>

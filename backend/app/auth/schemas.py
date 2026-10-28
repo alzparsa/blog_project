@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 
 
 class CreateAccessTokenRequest(BaseModel):
-    accountId: int
     email: EmailStr
     password: str
 

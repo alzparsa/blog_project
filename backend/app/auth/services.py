@@ -92,15 +92,14 @@ def create_refresh_token(
 
 def create_access_token_service(
     db: Session,
-    account_id: int,
     email: str,
     password: str,
 ) -> dict:
     # 1. Validate required values
-    if account_id is None or not email or not password:
+    if not email or not password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="accountId, email, and password are required",
+            detail="email and password are required",
         )
 
     # 2. Find the account by email
@@ -116,24 +115,17 @@ def create_access_token_service(
             detail="Invalid credentials",
         )
 
-    # 3. Verify that the account ID matches the email
-    if account.id != account_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-        )
-
-    # 4. Verify the submitted password against the stored hash
+    # 3. Verify the submitted password against the stored hash
     if not pwd_context.verify(password, account.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
 
-    # 5. Activate the account after successful verification
+    # 4. Activate the account after successful verification
     account.isActive = True
 
-    # 6. Create a short-lived access token
+    # 5. Create a short-lived access token
     access_token = create_access_token(
         data={
             "sub": str(account.id),
@@ -145,7 +137,7 @@ def create_access_token_service(
         ),
     )
 
-    # 7. Create a longer-lived refresh token
+    # 6. Create a longer-lived refresh token
     refresh_token = create_refresh_token(
         data={
             "sub": str(account.id),
@@ -156,11 +148,11 @@ def create_access_token_service(
         ),
     )
 
-    # 8. Save isActive=True
+    # 7. Save isActive=True
     db.commit()
     db.refresh(account)
 
-    # 9. Return the response expected by the schema
+    # 8. Return the response expected by the schema
     return {
         "accessToken": access_token,
         "refreshToken": refresh_token,

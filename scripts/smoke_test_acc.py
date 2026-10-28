@@ -64,9 +64,9 @@ check("create duplicate email rejected", s, 400, b)
 s, b = call("POST", "/auth/accounts", {"email": "x" + email, "password": "short", "name": "x"})
 check("create with short password rejected", s, 422, b)
 
-s, b = call("POST", "/auth/login", {"accountId": acc_id, "email": email, "password": "wrong-password"})
+s, b = call("POST", "/auth/login", {"email": email, "password": "wrong-password"})
 check("login with wrong password", s, 401, b)
-s, b = call("POST", "/auth/login", {"accountId": acc_id, "email": email, "password": password})
+s, b = call("POST", "/auth/login", {"email": email, "password": password})
 check("login", s, 200, b)
 access, refresh = b["accessToken"], b["refreshToken"]
 
