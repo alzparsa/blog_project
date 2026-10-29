@@ -3,11 +3,13 @@
 import { useState } from "react";
 import api from "@/lib/api";
 import { saveTokens } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const router = useRouter();
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -16,6 +18,7 @@ export default function LoginPage() {
             const res = await api.post("/auth/login", { email, password });
             console.log(res.data);
             saveTokens(res.data.accessToken, res.data.refreshToken);
+            router.replace("/feed");
         } catch (err) {
             console.log(err.response?.data);
         }
